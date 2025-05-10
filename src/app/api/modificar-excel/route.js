@@ -1,3 +1,7 @@
+// app/api/modificar-excel/route.js
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import ExcelJS from 'exceljs';
 import fs from 'fs';
 import path from 'path';
