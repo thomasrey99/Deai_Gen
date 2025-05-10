@@ -36,10 +36,11 @@ export default function FormularioExcel() {
     };
 
     const res = await fetch('/api/modificar-excel', {
-      method: 'POST',
-      body: JSON.stringify(formattedForm),
-      headers: { 'Content-Type': 'application/json' },
-    });
+  method: 'POST',
+  body: JSON.stringify(formattedForm),
+  headers: { 'Content-Type': 'application/json' },
+});
+
     console.log(res)
     if (!res.ok) {
       alert('Error al generar el archivo');
