@@ -35,7 +35,7 @@ export default function FormularioExcel() {
       fechaHecho: formatDate(form.fechaHecho),
     };
 
-    const res = await fetch('/api/modificar-excel', {
+    const res = await fetch('https://deai-gen.vercel.app/api/modificar-excel', {
       method: 'POST',
       body: JSON.stringify(formattedForm),
       headers: { 'Content-Type': 'application/json' },
