@@ -1,13 +1,12 @@
 "use client"
-import * as XLSX from 'xlsx';
-import { useState } from 'react';
 import ExcelForm from '@/components/form';
 
 const ExcelModifier = () => {
  
 
   return (
-    <div className="p-4">
+    <div className="flex flex-col items-center justify-center p-4 w-full min-h-screen">
+      <h1 className='font-bold text-4xl'>DEAI GEN</h1>
       <ExcelForm/>
     </div>
   );

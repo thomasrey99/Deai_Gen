@@ -70,7 +70,7 @@ export default function FormularioExcel() {
   const isFormIncomplete = Object.values(form).some((value) => value.trim() === '');
 
   return (
-    <form className="p-4" onSubmit={handleSubmit}>
+    <form className="w-5/7 p-4" onSubmit={handleSubmit}>
       <label className="block mb-1">SAE</label>
       <input
         type="text"
