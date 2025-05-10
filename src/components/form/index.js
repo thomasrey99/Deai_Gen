@@ -40,7 +40,7 @@ export default function FormularioExcel() {
       body: JSON.stringify(formattedForm),
       headers: { 'Content-Type': 'application/json' },
     });
-
+    console.log(res)
     if (!res.ok) {
       alert('Error al generar el archivo');
       return;
