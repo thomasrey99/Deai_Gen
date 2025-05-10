@@ -18,6 +18,8 @@ export async function POST(req) {
   try {
     const data = await req.json();
 
+    console.log(data)
+
     const filePath = path.join(process.cwd(), 'public', 'PLANILLA DE VISUALIZACIÓN.xlsx');
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
