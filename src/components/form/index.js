@@ -7,8 +7,10 @@ import { areas } from '../../../public/data/areas';
 import { typeOfIntervention } from '../../../public/data/typeOfInterventions';
 import { jurisdictions } from '../../../public/data/jurisdictions';
 import { interveningJustices } from '../../../public/data/justice';
+import Loading from '../loading';
+import ModalAlert from '../modalAlert';
 
-export default function FormularioExcel({ setForm, form }) {
+export default function Excel({ setForm, form, loading, fileInputRef, setPdfURL, setDataObject }) {
   const formatDate = (date) => {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -40,9 +42,8 @@ export default function FormularioExcel({ setForm, form }) {
       body: JSON.stringify(formattedForm),
       headers: { 'Content-Type': 'application/json' },
     });
-    console.log(res)
     if (!res.ok) {
-      alert('Error al generar el archivo');
+      ModalAlert("error", 'Error al generar el archivo');
       return;
     }
     const blob = await res.blob();
@@ -72,6 +73,10 @@ export default function FormularioExcel({ setForm, form }) {
       intervener: '',
       review: '',
     });
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setPdfURL(null);
+    setDataObject(null); 
   };
 
   const isFormIncomplete = Object.entries(form).some(([key, value]) => {
@@ -85,7 +90,7 @@ export default function FormularioExcel({ setForm, form }) {
   });
 
   return (
-    <form className="flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md" onSubmit={handleSubmit}>
+    <form className="relative overflow-hidden flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md" onSubmit={handleSubmit}>
       <h2 className="text-3xl font-bold text-indigo-300">Formulario de Visualización</h2>
 
       {/* Secciones */}
@@ -199,6 +204,9 @@ export default function FormularioExcel({ setForm, form }) {
           Limpiar Campos
         </button>
       </div>
+      {
+        loading && <Loading />
+      }
     </form>
   );
 }

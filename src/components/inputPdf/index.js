@@ -1,19 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-import { jurisdictions } from '../../../public/data/jurisdictions';
-import { Modalities } from '../../../public/data/modalities';
-import { interveningJustices } from '../../../public/data/justice';
 import ModalAlert from '../modalAlert';
+import { jurisdictions } from '../../../public/data/jurisdictions';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
-const PdfReader = ({ form, setForm, loading, setIsLoading }) => {
-  const [dataObject, setDataObject] = useState(null);
-  const [pdfURL, setPdfURL] = useState(null);
-
+const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfURL, dataObject, setDataObject }) => {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
@@ -23,65 +17,86 @@ const PdfReader = ({ form, setForm, loading, setIsLoading }) => {
 
         const reader = new FileReader();
         reader.onload = async (e) => {
-          const typedArray = new Uint8Array(e.target.result);
-          const loadingTask = pdfjsLib.getDocument({ data: typedArray });
-          const pdf = await loadingTask.promise;
+          try {
+            const typedArray = new Uint8Array(e.target.result);
+            const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
 
-          let fullText = '';
-          for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-            const page = await pdf.getPage(pageNumber);
-            const content = await page.getTextContent();
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              const lines = {};
+              content.items.forEach(item => {
+                const y = Math.floor(item.transform[5]);
+                if (!lines[y]) lines[y] = [];
+                lines[y].push(item.str);
+              });
+              const sorted = Object.keys(lines).sort((a, b) => b - a);
+              fullText += sorted.map(y => lines[y].join(' ')).join('\n') + '\n';
+            }
 
-            const lines = {};
-            content.items.forEach((item) => {
-              const y = Math.floor(item.transform[5]);
-              if (!lines[y]) lines[y] = [];
-              lines[y].push(item.str);
-            });
-
-            const sortedY = Object.keys(lines).sort((a, b) => b - a);
-            const pageText = sortedY.map((y) => lines[y].join(' ')).join('\n');
-            fullText += pageText + '\n';
+            setDataObject(fullText);
+          } catch {
+            ModalAlert("error", "Error al procesar el PDF");
+            fileInputRef.current && (fileInputRef.current.value = '');
+            setPdfURL(null);
+            setDataObject(null);
           }
-
-          setDataObject(fullText);
         };
 
         reader.readAsArrayBuffer(file);
-      } catch (error) {
-        ModalAlert("error al procesar el archivo")
-        throw new Error('Error al procesar el archivo:', error);
+      } catch {
+        ModalAlert("error", "Error al procesar el archivo");
+        fileInputRef.current && (fileInputRef.current.value = '');
+        setPdfURL(null);
+        setDataObject(null);
       }
     } else {
-      ModalAlert("error", "Por favor, carga un archivo PDF")
+      ModalAlert("error", "Por favor, carga un archivo PDF");
+      fileInputRef.current && (fileInputRef.current.value = '');
+      setPdfURL(null);
+      setDataObject(null);
     }
   };
 
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
+      setForm({
+        area: "",
+        typeOfIntervention: "",
+        number: '',
+        eventDate: '',
+        callTime: "",
+        direction: '',
+        jurisdiction: "",
+        interveningJustice: {
+          justice: "",
+          fiscal: "",
+          secretariat: ""
+        },
+        modalitie: '',
+        operator: '',
+        intervener: '',
+        review: '',
+      });
 
       const res = await fetch('/api/extraer-datos', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: dataObject }),
       });
 
       const data = await res.json();
+      if (!data?.response) throw new Error("Respuesta vacía del servidor");
 
-      let parsed;
-      try {
-        parsed = typeof data.response === 'string' ? JSON.parse(data.response) : data.response;
-      } catch (e) {
-        ModalAlert("error", "No se pudo interpretar la respuesta del servidor.");
-        setIsLoading(false);
-        return;
-      }
+      const parsed = typeof data.response === 'string' ? JSON.parse(data.response) : data.response;
 
-      if (parsed.message) {
+      if (parsed?.message) {
         ModalAlert("error", parsed.message);
+        fileInputRef.current && (fileInputRef.current.value = '');
+        setPdfURL(null);
+        setDataObject(null);
         setIsLoading(false);
         return;
       }
@@ -90,14 +105,6 @@ const PdfReader = ({ form, setForm, loading, setIsLoading }) => {
         j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
       ) || '';
 
-      const validModalitie = Modalities.find(m =>
-        m.modalitie.toLowerCase() === (parsed.modalitie || '').toLowerCase()
-      )?.modalitie || '';
-
-      const matchingJustice = interveningJustices.find(j =>
-        j.justice.toLowerCase() === (parsed?.interveningJustice?.justice || '').toLowerCase()
-      ) || { justice: '', fiscal: '', secretariat: '' };
-
       setForm({
         ...form,
         number: parsed.number || '',
@@ -105,36 +112,38 @@ const PdfReader = ({ form, setForm, loading, setIsLoading }) => {
         callTime: parsed.callTime || '',
         direction: parsed.direction || '',
         jurisdiction: validJurisdiction,
-        modalitie: validModalitie,
-        interveningJustice: matchingJustice,
         review: parsed.review || '',
       });
 
       ModalAlert("success", "Datos cargados con éxito");
-      setIsLoading(false);
     } catch (error) {
-      console.error('Error al enviar el prompt:', error);
+      console.error('Error al extraer datos:', error);
       ModalAlert("error", "Error inesperado al procesar el archivo");
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-4 p-4 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-m">
+    <div className="flex flex-wrap items-center justify-end gap-4 p-4 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
       <input
         type="file"
         accept="application/pdf"
+        ref={fileInputRef}
         onChange={handleFileChange}
         className="px-4 py-2 text-white bg-black/40 border border-gray-600 rounded-md shadow hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
-
       <button
         onClick={handleSubmit}
-        className="px-6 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 shadow transition"
+        disabled={!dataObject}
+        className={`px-6 py-2 rounded-md shadow transition ${
+          !dataObject
+            ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
+            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+        }`}
       >
         Extraer
       </button>
-
       {pdfURL && (
         <a
           href={pdfURL}
@@ -150,3 +159,4 @@ const PdfReader = ({ form, setForm, loading, setIsLoading }) => {
 };
 
 export default PdfReader;
+

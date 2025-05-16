@@ -1,7 +1,27 @@
-export default function Loading(){
+const Loading = () => {
     return (
-        <div className="w-full h-full  ">
-
+        <div className="absolute inset-0 z-10 flex flex-col gap-4 items-center justify-center bg-black/70 rounded-xl">
+            <h2>Cargando datos</h2>
+            <div className="loader">
+                <div className="circle">
+                    <div className="dot"></div>
+                    <div className="outline"></div>
+                </div>
+                <div className="circle">
+                    <div className="dot"></div>
+                    <div className="outline"></div>
+                </div>
+                <div className="circle">
+                    <div className="dot"></div>
+                    <div className="outline"></div>
+                </div>
+                <div className="circle">
+                    <div className="dot"></div>
+                    <div className="outline"></div>
+                </div>
+            </div>
         </div>
-    )
-}
+    );
+};
+
+export default Loading;
