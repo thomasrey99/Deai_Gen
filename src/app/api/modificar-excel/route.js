@@ -1,9 +1,6 @@
 import ExcelJS from 'exceljs';
-import fs from 'fs';
-import { NextResponse } from 'next/server';
 import path from 'path';
 
-// Este endpoint maneja las peticiones OPTIONS (preflight)
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
@@ -19,34 +16,54 @@ export async function POST(req) {
   try {
     const data = await req.json();
     const filePath = path.join(process.cwd(), 'public', 'planilla visualizador.xlsx');
+
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
     const worksheet = workbook.getWorksheet('DETALLE');
-    console.log(worksheet)
-    worksheet.getCell('A2').value = data.typeOfIntervention;
-    worksheet.getCell('B2').value = data.number;
-    worksheet.getCell('B3').value = data.area;
-    worksheet.getCell('B5').value = data.eventDate;
-    worksheet.getCell('D5').value = data.callTime;
-    worksheet.getCell('B6').value = data.place;
-    worksheet.getCell('B7').value = data.modalitie;
-    worksheet.getCell('B25:G25').value = data.review;
-    if (data.operator) {
-      worksheet.getCell('B11').value = data.operator;
-    }
-    if (data.intervener) {
-      worksheet.getCell('B12').value = data.intervener;
-    }
-    if (data.interveningJustice) {
-      worksheet.getCell('B8').value = data.interveningJustice.justice;
-      worksheet.getCell('C8').value = data.interveningJustice.fiscal;
-      worksheet.getCell('D8').value = data.interveningJustice.secretariat;
-    }
-    if (data.jurisdiction) {
-      worksheet.getCell('B9').value = data.jurisdiction
-    }
+
+    // Celdas con valor, fuente Calibri bold y borde
+    const cellsToFormat = [
+      ['A2', data.typeOfIntervention],
+      ['B2', data.number],
+      ['B3', data.area],
+      ['B5', data.eventDate],
+      ['D5', data.callTime],
+      ['B6', data.direction],
+      ['B7', data.modalitie],
+      ['B8', data.interveningJustice?.justice || ''],
+      ['C8', data.interveningJustice?.fiscal || ''],
+      ['D8', data.interveningJustice?.secretariat || ''],
+      ['B9', data.jurisdiction || ''],
+      ['B11', data.operator || ''],
+      ['B12', data.intervener || ''],
+    ];
+
+    cellsToFormat.forEach(([cellRef, value]) => {
+      const cell = worksheet.getCell(cellRef);
+      cell.value = value;
+      cell.font = { name: 'Calibri', bold: true };
+      cell.border = {
+        top: { style: 'medium', color: { argb: '000000' } },
+        left: { style: 'medium', color: { argb: '000000' } },
+        bottom: { style: 'medium', color: { argb: '000000' } },
+        right: { style: 'medium', color: { argb: '000000' } },
+      };
+    });
+
+    // Restaurar fórmula en C9 y D9
+    worksheet.getCell('C9').value = {
+      formula: 'IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")'
+    };
+
+    worksheet.getCell('D9').value = {
+      formula: 'IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")'
+    };
+
+    // Reseña (sin estilo extra)
+    worksheet.getCell('B25').value = data.review || '';
 
     const buffer = await workbook.xlsx.writeBuffer();
+
     return new Response(buffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -54,7 +71,9 @@ export async function POST(req) {
         'Access-Control-Allow-Origin': 'https://deai-gen-thomas-reys-projects.vercel.app',
       },
     });
+
   } catch (error) {
+    console.error('❌ Error al generar Excel:', error);
     return new Response(JSON.stringify({ error: 'Error al generar Excel' }), {
       status: 500,
       headers: {
@@ -64,4 +83,3 @@ export async function POST(req) {
     });
   }
 }
-

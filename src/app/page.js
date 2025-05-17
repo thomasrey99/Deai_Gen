@@ -1,7 +1,8 @@
 "use client";
+
+import { useState, useRef, useEffect } from 'react';
 import ExcelForm from '@/components/form';
 import PdfReader from '@/components/inputPdf';
-import { useState, useRef } from 'react';
 
 const ExcelModifier = () => {
   const fileInputRef = useRef(null);
@@ -9,17 +10,17 @@ const ExcelModifier = () => {
   const [loading, setIsLoading] = useState(false);
   const [dataObject, setDataObject] = useState(null);
   const [form, setForm] = useState({
-    area: "",
-    typeOfIntervention: "",
+    area: '',
+    typeOfIntervention: '',
     number: '',
     eventDate: '',
-    callTime: "",
+    callTime: '',
     direction: '',
-    jurisdiction: "",
+    jurisdiction: '',
     interveningJustice: {
-      justice: "",
-      fiscal: "",
-      secretariat: ""
+      justice: '',
+      fiscal: '',
+      secretariat: '',
     },
     modalitie: '',
     operator: '',
@@ -27,6 +28,9 @@ const ExcelModifier = () => {
     review: '',
   });
 
+  useEffect(() => {
+    console.log(form);
+  }, [form]);
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white font-sans">
@@ -55,6 +59,7 @@ const ExcelModifier = () => {
             fileInputRef={fileInputRef}
             setPdfURL={setPdfURL}
             setDataObject={setDataObject}
+            setIsLoading={setIsLoading}
           />
         </div>
       </main>

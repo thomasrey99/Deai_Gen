@@ -7,7 +7,16 @@ import { jurisdictions } from '../../../public/data/jurisdictions';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
-const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfURL, dataObject, setDataObject }) => {
+const PdfReader = ({
+  form,
+  setForm,
+  setIsLoading,
+  fileInputRef,
+  pdfURL,
+  setPdfURL,
+  dataObject,
+  setDataObject,
+}) => {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
@@ -26,18 +35,18 @@ const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfUR
               const page = await pdf.getPage(i);
               const content = await page.getTextContent();
               const lines = {};
-              content.items.forEach(item => {
+              content.items.forEach((item) => {
                 const y = Math.floor(item.transform[5]);
                 if (!lines[y]) lines[y] = [];
                 lines[y].push(item.str);
               });
               const sorted = Object.keys(lines).sort((a, b) => b - a);
-              fullText += sorted.map(y => lines[y].join(' ')).join('\n') + '\n';
+              fullText += sorted.map((y) => lines[y].join(' ')).join('\n') + '\n';
             }
 
             setDataObject(fullText);
           } catch {
-            ModalAlert("error", "Error al procesar el PDF");
+            ModalAlert('error', 'Error al procesar el PDF');
             fileInputRef.current && (fileInputRef.current.value = '');
             setPdfURL(null);
             setDataObject(null);
@@ -46,13 +55,13 @@ const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfUR
 
         reader.readAsArrayBuffer(file);
       } catch {
-        ModalAlert("error", "Error al procesar el archivo");
+        ModalAlert('error', 'Error al procesar el archivo');
         fileInputRef.current && (fileInputRef.current.value = '');
         setPdfURL(null);
         setDataObject(null);
       }
     } else {
-      ModalAlert("error", "Por favor, carga un archivo PDF");
+      ModalAlert('error', 'Por favor, carga un archivo PDF');
       fileInputRef.current && (fileInputRef.current.value = '');
       setPdfURL(null);
       setDataObject(null);
@@ -63,17 +72,17 @@ const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfUR
     try {
       setIsLoading(true);
       setForm({
-        area: "",
-        typeOfIntervention: "",
+        area: '',
+        typeOfIntervention: '',
         number: '',
         eventDate: '',
-        callTime: "",
+        callTime: '',
         direction: '',
-        jurisdiction: "",
+        jurisdiction: '',
         interveningJustice: {
-          justice: "",
-          fiscal: "",
-          secretariat: ""
+          justice: '',
+          fiscal: '',
+          secretariat: '',
         },
         modalitie: '',
         operator: '',
@@ -81,29 +90,33 @@ const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfUR
         review: '',
       });
 
-      const res = await fetch('/api/extraer-datos', {
+      const res = await fetch(process.env.NEXT_PUBLIC_EXTRACT_DATA, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: dataObject }),
       });
 
       const data = await res.json();
-      if (!data?.response) throw new Error("Respuesta vacía del servidor");
+      if (!data?.response) throw new Error('Respuesta vacía del servidor');
 
-      const parsed = typeof data.response === 'string' ? JSON.parse(data.response) : data.response;
+      const parsed =
+        typeof data.response === 'string'
+          ? JSON.parse(data.response)
+          : data.response;
 
       if (parsed?.message) {
-        ModalAlert("error", parsed.message);
+        ModalAlert('error', parsed.message);
         fileInputRef.current && (fileInputRef.current.value = '');
         setPdfURL(null);
         setDataObject(null);
         setIsLoading(false);
-        return;
+        return false;
       }
 
-      const validJurisdiction = jurisdictions.find(j =>
-        j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
-      ) || '';
+      const validJurisdiction =
+        jurisdictions.find(
+          (j) => j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
+        ) || '';
 
       setForm({
         ...form,
@@ -115,10 +128,10 @@ const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfUR
         review: parsed.review || '',
       });
 
-      ModalAlert("success", "Datos cargados con éxito");
+      ModalAlert('success', 'Datos cargados con éxito');
     } catch (error) {
       console.error('Error al extraer datos:', error);
-      ModalAlert("error", "Error inesperado al procesar el archivo");
+      ModalAlert('error', 'Error inesperado al procesar el archivo');
     } finally {
       setIsLoading(false);
     }
@@ -159,4 +172,3 @@ const PdfReader = ({ form, setForm, setIsLoading, fileInputRef, pdfURL, setPdfUR
 };
 
 export default PdfReader;
-
