@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import ExcelForm from '@/components/form';
 import PdfReader from '@/components/inputPdf';
+import Image from 'next/image';
 
 const ExcelModifier = () => {
   const fileInputRef = useRef(null);
@@ -34,10 +35,13 @@ const ExcelModifier = () => {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white font-sans">
-      <header className="w-full px-6 py-8 flex flex-col md:flex-row gap-4 items-center justify-between max-w-7xl mx-auto">
-        <h1 className="text-5xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 animate-pulse">
-          DEAI GEN
-        </h1>
+      <header className="w-full px-6 py-8 flex flex-col gap-4 items-center justify-between max-w-7xl mx-auto">
+        <div className='w-full flex items-center justify-start gap-8 '>
+          <h1 className="text-5xl font-extrabold tracking-wide text-transparent bg-clip-text bg-sky-700 animate-pulse">
+            DEAI GEN
+          </h1>
+          <Image src={"/logo.png"} alt='deai logo' width={100} height={100}/>
+        </div>
         <PdfReader
           form={form}
           setForm={setForm}
