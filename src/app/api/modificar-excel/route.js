@@ -1,12 +1,13 @@
 import ExcelJS from 'exceljs';
 import path from 'path';
+import { readFile } from 'fs/promises';
 
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   });
@@ -15,10 +16,13 @@ export async function OPTIONS() {
 export async function POST(req) {
   try {
     const data = await req.json();
+
+    // Leer el Excel desde memoria (compatible con Vercel)
     const filePath = path.join(process.cwd(), 'public', 'planilla visualizador.xlsx');
+    const buffer = await readFile(filePath);
 
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(filePath);
+    await workbook.xlsx.load(buffer);
     const worksheet = workbook.getWorksheet('DETALLE');
 
     // Celdas con valor, fuente Calibri bold y borde
@@ -50,25 +54,24 @@ export async function POST(req) {
       };
     });
 
-    // Restaurar fórmula en C9 y D9
+    // Fórmulas en C9 y D9 (se mantienen)
     worksheet.getCell('C9').value = {
       formula: 'IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")'
     };
-
     worksheet.getCell('D9').value = {
       formula: 'IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")'
     };
 
-    // Reseña (sin estilo extra)
+    // Reseña sin formato especial
     worksheet.getCell('B25').value = data.review || '';
 
-    const buffer = await workbook.xlsx.writeBuffer();
+    const resultBuffer = await workbook.xlsx.writeBuffer();
 
-    return new Response(buffer, {
+    return new Response(resultBuffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': 'attachment; filename=PLANILLA DE VISUALIZACIÓN.xlsx',
-        'Access-Control-Allow-Origin': 'https://deai-gen-thomas-reys-projects.vercel.app',
+        'Access-Control-Allow-Origin': '*',
       },
     });
 
@@ -78,7 +81,7 @@ export async function POST(req) {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'https://deai-gen-thomas-reys-projects.vercel.app',
+        'Access-Control-Allow-Origin': '*',
       },
     });
   }
