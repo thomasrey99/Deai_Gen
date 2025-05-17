@@ -1,6 +1,5 @@
 import ExcelJS from 'exceljs';
 import path from 'path';
-import { readFile } from 'fs/promises';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -16,13 +15,10 @@ export async function OPTIONS() {
 export async function POST(req) {
   try {
     const data = await req.json();
-
-    // Leer el Excel desde memoria (compatible con Vercel)
     const filePath = path.join(process.cwd(), 'public', 'planilla visualizador.xlsx');
-    const buffer = await readFile(filePath);
 
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buffer);
+    await workbook.xlsx.readFile(filePath);
     const worksheet = workbook.getWorksheet('DETALLE');
 
     // Celdas con valor, fuente Calibri bold y borde
@@ -54,23 +50,24 @@ export async function POST(req) {
       };
     });
 
-    // Fórmulas en C9 y D9 (se mantienen)
+    // Restaurar fórmula en C9 y D9
     worksheet.getCell('C9').value = {
-      formula: 'IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")'
-    };
-    worksheet.getCell('D9').value = {
-      formula: 'IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")'
+      formula: 'IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")',
     };
 
-    // Reseña sin formato especial
+    worksheet.getCell('D9').value = {
+      formula: 'IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")',
+    };
+
+    // Reseña sin estilos extra
     worksheet.getCell('B25').value = data.review || '';
 
-    const resultBuffer = await workbook.xlsx.writeBuffer();
+    const buffer = await workbook.xlsx.writeBuffer();
 
-    return new Response(resultBuffer, {
+    return new Response(buffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename=PLANILLA DE VISUALIZACIÓN.xlsx',
+        'Content-Disposition': 'attachment; filename=PLANILLA_DE_VISUALIZACION.xlsx', // ✅ sin tilde
         'Access-Control-Allow-Origin': '*',
       },
     });
