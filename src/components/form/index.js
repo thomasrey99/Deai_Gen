@@ -18,6 +18,7 @@ export default function Excel({
   fileInputRef,
   setPdfURL,
   setDataObject,
+  setFileName
 }) {
   const formatDate = (date) => {
     const d = new Date(date);
@@ -96,6 +97,7 @@ export default function Excel({
     });
 
     if (fileInputRef.current) fileInputRef.current.value = '';
+    setFileName("")
     setPdfURL(null);
     setDataObject(null);
   };
@@ -115,204 +117,204 @@ export default function Excel({
       className="relative overflow-hidden flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md"
       onSubmit={handleSubmit}
     >
-      <h2 className="text-3xl font-bold text-indigo-300">Formulario de Visualización</h2>
+      <h2 className="text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
 
-      {/* ÁREA, TIPO, NRO */}
+      {/* GRUPO 1 */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label htmlFor="area" className="text-sm text-gray-300">Área</label>
+          <label htmlFor="area" className="block text-sm font-medium text-white/80 mb-1">Área</label>
           <select
             name="area"
             value={form.area}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {areas.map((area, i) => (
-              <option key={i} value={area}>{area}</option>
+              <option key={i} value={area} className="text-white bg-gray-900">{area}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label htmlFor="typeOfIntervention" className="text-sm text-gray-300">Tipo</label>
+          <label htmlFor="typeOfIntervention" className="block text-sm font-medium text-white/80 mb-1">Tipo</label>
           <select
             name="typeOfIntervention"
             value={form.typeOfIntervention}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {typeOfIntervention.map((type, i) => (
-              <option key={i} value={type}>{type}</option>
+              <option key={i} value={type} className="text-white bg-gray-900">{type}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Nro</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Nro / Nombre</label>
           <input
             type="text"
             name="number"
             value={form.number}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           />
         </div>
       </section>
 
-      {/* VISUALIZADOR - INTERVENTOR */}
+      {/* GRUPO 2 */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="text-sm text-gray-300">Visualizador</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Visualizador</label>
           <select
             name="operator"
             value={form.operator}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {Operators.map(({ operator }, i) => (
-              <option key={i} value={operator}>{operator}</option>
+              <option key={i} value={operator} className="text-white bg-gray-900">{operator}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Interventor</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Interventor</label>
           <select
             name="intervener"
             value={form.intervener}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {Interveners.map(({ intervener }, i) => (
-              <option key={i} value={intervener}>{intervener}</option>
+              <option key={i} value={intervener} className="text-white bg-gray-900">{intervener}</option>
             ))}
           </select>
         </div>
       </section>
 
-      {/* LUGAR - FECHA - HORA */}
+      {/* GRUPO 3 */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="text-sm text-gray-300">Lugar</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Lugar</label>
           <input
             type="text"
             name="direction"
             value={form.direction}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Fecha del hecho</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Fecha del hecho</label>
           <input
             type="date"
             name="eventDate"
             value={form.eventDate}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Hora del llamado</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Hora del llamado</label>
           <input
             type="time"
             name="callTime"
             step="1"
             value={form.callTime}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           />
         </div>
       </section>
 
-      {/* MODALIDAD - JURISDICCIÓN */}
+      {/* GRUPO 4 */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="text-sm text-gray-300">Modalidad</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Modalidad</label>
           <select
             name="modalitie"
             value={form.modalitie}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {Modalities.map(({ modalitie }, i) => (
-              <option key={i} value={modalitie}>{modalitie}</option>
+              <option key={i} value={modalitie} className="text-white bg-gray-900">{modalitie}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Jurisdicción</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Jurisdicción</label>
           <select
             name="jurisdiction"
             value={form.jurisdiction}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {jurisdictions.map((jurisdiction, i) => (
-              <option key={i} value={jurisdiction}>{jurisdiction}</option>
+              <option key={i} value={jurisdiction} className="text-white bg-gray-900">{jurisdiction}</option>
             ))}
           </select>
         </div>
       </section>
 
-      {/* JUSTICIA INTERVENTORA */}
+      {/* GRUPO 5 */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="text-sm text-gray-300">Justicia interventora</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Justicia interventora</label>
           <select
             name="justice"
             value={form.interveningJustice.justice}
             onChange={handleChange}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           >
-            <option value="" disabled>Seleccionar...</option>
+            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
             {interveningJustices.map((j, i) => (
-              <option key={i} value={j.justice}>{j.justice}</option>
+              <option key={i} value={j.justice} className="text-white bg-gray-900">{j.justice}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Fiscal a/c</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Fiscal a/c</label>
           <input
             type="text"
             name="fiscal"
             value={form.interveningJustice.fiscal}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
             onChange={handleChange}
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Secretaría a/c</label>
+          <label className="block text-sm font-medium text-white/80 mb-1">Secretaría a/c</label>
           <input
             type="text"
             name="secretariat"
             value={form.interveningJustice.secretariat}
-            className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
             onChange={handleChange}
+            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
           />
         </div>
       </section>
 
-      {/* RESEÑA */}
+      {/* GRUPO 6 */}
       <div>
-        <label className="text-sm text-gray-300">Reseña</label>
+        <label className="block text-sm font-medium text-white/80 mb-1">Reseña</label>
         <textarea
           name="review"
           value={form.review}
           onChange={handleChange}
           rows="4"
-          className="w-full mt-1 bg-black/40 text-white border border-gray-600 rounded px-3 py-2"
+          className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
         ></textarea>
       </div>
 
@@ -320,23 +322,25 @@ export default function Excel({
       <div className="flex flex-col md:flex-row gap-4 mt-6">
         <button
           type="submit"
-          disabled={isFormIncomplete}
-          className={`px-6 py-3 text-white font-medium rounded-md shadow transition ${isFormIncomplete ? 'bg-indigo-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+          disabled={isFormIncomplete || loading}
+          className={`w-full md:w-auto px-6 py-3 rounded-lg font-semibold transition shadow-lg ${isFormIncomplete || loading
+              ? 'bg-sky-300 cursor-not-allowed text-white'
+              : 'bg-sky-500 hover:bg-sky-600 text-white'
             }`}
         >
-          Descargar Excel
+          Generar excel
         </button>
 
         <button
           type="button"
           onClick={handleClear}
-          className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-md shadow transition"
+          className="bg-transparent border border-sky-500 text-sky-400 hover:bg-sky-500 hover:text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300"
         >
-          Limpiar Campos
+          Limpiar campos
         </button>
       </div>
-
-      {loading && <Loading />}
     </form>
+
+
   );
 }

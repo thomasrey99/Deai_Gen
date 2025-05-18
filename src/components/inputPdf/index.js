@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import ModalAlert from '../modalAlert';
@@ -16,10 +17,19 @@ const PdfReader = ({
   setPdfURL,
   dataObject,
   setDataObject,
+  fileName,
+  setFileName
 }) => {
+
+  const truncateFileName = (name, maxLength = 25) => {
+    if (name.length <= maxLength) return name;
+    return name.slice(0, maxLength - 3) + '...';
+  };
+
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
+      setFileName(truncateFileName(file.name));
       try {
         const fileURL = URL.createObjectURL(file);
         setPdfURL(fileURL);
@@ -50,6 +60,7 @@ const PdfReader = ({
             fileInputRef.current && (fileInputRef.current.value = '');
             setPdfURL(null);
             setDataObject(null);
+            setFileName('');
           }
         };
 
@@ -59,12 +70,14 @@ const PdfReader = ({
         fileInputRef.current && (fileInputRef.current.value = '');
         setPdfURL(null);
         setDataObject(null);
+        setFileName('');
       }
     } else {
       ModalAlert('error', 'Por favor, carga un archivo PDF');
       fileInputRef.current && (fileInputRef.current.value = '');
       setPdfURL(null);
       setDataObject(null);
+      setFileName('');
     }
   };
 
@@ -109,6 +122,7 @@ const PdfReader = ({
         fileInputRef.current && (fileInputRef.current.value = '');
         setPdfURL(null);
         setDataObject(null);
+        setFileName('');
         setIsLoading(false);
         return false;
       }
@@ -138,36 +152,59 @@ const PdfReader = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-4 p-4 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
-      <input
-        type="file"
-        accept="application/pdf"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="px-4 py-2 text-white bg-black/40 border border-gray-600 rounded-md shadow hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-      <button
-        onClick={handleSubmit}
-        disabled={!dataObject}
-        className={`px-6 py-2 rounded-md shadow transition ${
-          !dataObject
-            ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
-            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-        }`}
-      >
-        Extraer
-      </button>
-      {pdfURL && (
-        <a
-          href={pdfURL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow transition"
+    <section className="p-6 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md max-w-4xl">
+      <h2 className="mb-2 text-lg font-semibold text-white tracking-wide">
+        Cargar y Extraer Datos del PDF
+      </h2>
+      <div className="flex items-center gap-2">
+        <label
+          htmlFor="pdfInput"
+          className="text-white font-medium tracking-wide cursor-pointer bg-black/40 border border-gray-600 rounded-md px-3 py-2 shadow hover:border-sky-400 focus-within:ring-2 focus-within:ring-sky-500 text-sm"
         >
-          Ver PDF
-        </a>
-      )}
-    </div>
+          Seleccionar archivo PDF
+          <input
+            id="pdfInput"
+            type="file"
+            accept="application/pdf"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
+
+        <input
+          type="text"
+          readOnly
+          value={fileName}
+          placeholder="No hay archivo seleccionado"
+          className="flex-1 bg-black/20 border border-gray-600 rounded-md px-3 py-2 text-white cursor-not-allowed select-text text-sm"
+          title={fileName}
+        />
+
+        <button
+          onClick={handleSubmit}
+          disabled={!dataObject}
+          className={`py-2 px-6 rounded-md shadow transition font-semibold text-sm ${
+            !dataObject
+              ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
+              : 'bg-sky-700 hover:bg-sky-800 text-white'
+          }`}
+        >
+          Extraer
+        </button>
+
+        {pdfURL && (
+          <a
+            href={pdfURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="py-2 px-6 text-white bg-cyan-600 hover:bg-cyan-700 rounded-md shadow transition font-semibold text-sm"
+          >
+            Ver PDF
+          </a>
+        )}
+      </div>
+    </section>
   );
 };
 
