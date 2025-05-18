@@ -138,37 +138,35 @@ const PdfReader = ({
   };
 
   return (
-    <div className="w-full flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
-      <h3 className='font-bold text-2xl'>Extraer datos pdf</h3>
-      <div className='flex flex-wrap items-center justify-end gap-4'>
-        <input
-          type="file"
-          accept="application/pdf"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="px-4 py-2 text-white bg-black/40 border border-gray-600 rounded-md shadow hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={!dataObject}
-          className={`px-6 py-2 rounded-md shadow transition ${!dataObject
-              ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
-              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-            }`}
+    <div className="flex flex-wrap items-center justify-end gap-4 p-4 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
+      <input
+        type="file"
+        accept="application/pdf"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="px-4 py-2 text-white bg-black/40 border border-gray-600 rounded-md shadow hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <button
+        onClick={handleSubmit}
+        disabled={!dataObject}
+        className={`px-6 py-2 rounded-md shadow transition ${
+          !dataObject
+            ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
+            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+        }`}
+      >
+        Extraer
+      </button>
+      {pdfURL && (
+        <a
+          href={pdfURL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow transition"
         >
-          Extraer
-        </button>
-        {pdfURL && (
-          <a
-            href={pdfURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow transition"
-          >
-            Ver PDF
-          </a>
-        )}
-      </div>
+          Ver PDF
+        </a>
+      )}
     </div>
   );
 };
